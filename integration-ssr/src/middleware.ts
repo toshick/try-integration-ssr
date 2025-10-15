@@ -1,18 +1,30 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
+// Node.js Runtimeを指定（Edge Runtimeではなく）
+export const runtime = "nodejs";
+
 // MSWの初期化フラグ
 let mswInitialized = false;
 
 async function initMSW() {
-  // テスト環境でのみMSWを初期化
-  if (
-    process.env.NODE_ENV !== "production" &&
-    typeof window === "undefined" &&
-    !mswInitialized
-  ) {
+  if (mswInitialized) {
+    console.log("MSW初期化済み");
+    return;
+  }
+
+  // Node.js環境かつテスト環境でのみMSWを初期化
+  const isNode =
+    typeof process !== "undefined" && process.versions && process.versions.node;
+  console.log("isNode:", isNode);
+  // const isTestEnv =
+  //   process.env.NODE_ENV === "test" || process.env.NODE_ENV === "development";
+
+  if (isNode) {
     try {
-      console.log("MSW初期化開始");
+      console.log("MSW初期化開始 - Node.js環境で実行中");
+      console.log("Node.js version:", process.versions.node);
+      console.log("NODE_ENV:", process.env.NODE_ENV);
 
       // 動的importを使用してESモジュールの問題を回避
       const { setupServer } = await import("msw/node");
