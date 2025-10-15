@@ -11,7 +11,7 @@ export default async function Home() {
   const data = await res.json();
 
   return (
-    <main className="flex flex-col gap-4 p-14">
+    <main className="flex flex-col gap-4 p-14 App">
       <h1>Try Integration SSR</h1>
       <p data-testid="api-result">{JSON.stringify(data)}</p>
     </main>
