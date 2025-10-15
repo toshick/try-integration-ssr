@@ -1,32 +1,49 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-function initMSW() {
+// MSWの初期化フラグ
+let mswInitialized = false;
+
+async function initMSW() {
   // テスト環境でのみMSWを初期化
-  if (process.env.NODE_ENV !== "production" && typeof window === "undefined") {
-    // サーバーサイドでのMSW初期化
-    const { setupServer } = require("msw/node");
-    const { http, HttpResponse } = require("msw");
+  if (
+    process.env.NODE_ENV !== "production" &&
+    typeof window === "undefined" &&
+    !mswInitialized
+  ) {
+    try {
+      console.log("MSW初期化開始");
 
-    const defaultHandlers = [
-      http.post("http://localhost:3001/:path*", () => {
-        return HttpResponse.json({
-          message: "msw: no handler registered",
-        });
-      }),
-    ];
+      // 動的importを使用してESモジュールの問題を回避
+      const { setupServer } = await import("msw/node");
+      const { http, HttpResponse } = await import("msw");
 
-    const server = setupServer(...defaultHandlers);
-    server.listen({ onUnhandledRequest: "bypass" });
+      const defaultHandlers = [
+        http.post("http://localhost:3001/:path*", () => {
+          console.log("MSW: POSTリクエストを受信");
+          return HttpResponse.json({
+            message: "msw: no handler registered",
+          });
+        }),
+      ];
 
-    // グローバルに公開
-    (global as any).__MSW_SERVER__ = server;
-    (global as any).__MSW_REST__ = http;
+      const server = setupServer(...defaultHandlers);
+      server.listen({ onUnhandledRequest: "bypass" });
+
+      // グローバルに公開
+      (global as any).__MSW_SERVER__ = server;
+      (global as any).__MSW_REST__ = http;
+
+      mswInitialized = true;
+      console.log("MSW初期化完了");
+    } catch (error) {
+      console.error("MSW初期化エラー:", error);
+    }
   }
 }
 
-export function middleware(request: NextRequest) {
-  initMSW();
+export async function middleware(request: NextRequest) {
+  await initMSW();
   return NextResponse.next();
 }
 
