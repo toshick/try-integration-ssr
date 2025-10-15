@@ -43,12 +43,11 @@ export default defineConfig({
   /* Run your local dev server before starting the tests */
   webServer: [
     {
-      command: "pnpm mock",
-      // url: "http://localhost:3001",
-      reuseExistingServer: !process.env.CI,
-    },
-    {
-      command: "cd ../integration-ssr && pnpm dev",
+      // command: `NODE_ENV=test node ${path.resolve(
+      //   __dirname,
+      //   "scripts/dev-with-msw.mjs"
+      // )} pnpm dev`,
+      command: `NODE_ENV=test pnpm dev`,
       url: "http://localhost:3000",
       reuseExistingServer: !process.env.CI,
     },
