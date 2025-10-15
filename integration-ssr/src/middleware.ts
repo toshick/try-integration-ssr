@@ -1,29 +1,32 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-// テスト環境でのみMSWを初期化
-if (process.env.NODE_ENV === "test" && typeof window === "undefined") {
-  // サーバーサイドでのMSW初期化
-  const { setupServer } = require("msw/node");
-  const { http, HttpResponse } = require("msw");
+function initMSW() {
+  // テスト環境でのみMSWを初期化
+  if (process.env.NODE_ENV !== "production" && typeof window === "undefined") {
+    // サーバーサイドでのMSW初期化
+    const { setupServer } = require("msw/node");
+    const { http, HttpResponse } = require("msw");
 
-  const defaultHandlers = [
-    http.post("http://localhost:3001/:path*", () => {
-      return HttpResponse.json({
-        message: "msw: no handler registered",
-      });
-    }),
-  ];
+    const defaultHandlers = [
+      http.post("http://localhost:3001/:path*", () => {
+        return HttpResponse.json({
+          message: "msw: no handler registered",
+        });
+      }),
+    ];
 
-  const server = setupServer(...defaultHandlers);
-  server.listen({ onUnhandledRequest: "bypass" });
+    const server = setupServer(...defaultHandlers);
+    server.listen({ onUnhandledRequest: "bypass" });
 
-  // グローバルに公開
-  (global as any).__MSW_SERVER__ = server;
-  (global as any).__MSW_REST__ = http;
+    // グローバルに公開
+    (global as any).__MSW_SERVER__ = server;
+    (global as any).__MSW_REST__ = http;
+  }
 }
 
 export function middleware(request: NextRequest) {
+  initMSW();
   return NextResponse.next();
 }
 
