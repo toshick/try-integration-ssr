@@ -18,7 +18,7 @@ test("モックあり", async ({ page, webServer }) => {
     });
   });
 
-  await page.goto("/");
+  await page.goto("http://localhost:3000");
   // 画面にモックデータが反映されていることを確認
   await expect(page.locator(".App")).toContainText("テストユーザー");
 });
