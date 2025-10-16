@@ -1,7 +1,7 @@
 import { test, expect, describe } from "next/experimental/testmode/playwright";
 
 describe("SSRモックの実験", () => {
-  test("myitemとhogeの両方のAPIをモックして、画面に反映されることを確認", async ({
+  test.only("myitemとhogeの両方のAPIをモックして、画面に反映されることを確認", async ({
     page,
     next,
   }) => {
@@ -33,7 +33,8 @@ describe("SSRモックの実験", () => {
           }
         );
       }
-      return "abort";
+      // モックしないリクエストはパススルー（実際のAPIサーバーに転送）
+      return undefined;
     });
     await page.goto("http://localhost:3000/");
 
@@ -49,7 +50,7 @@ describe("SSRモックの実験", () => {
     );
     await expect(page.locator(".App")).toContainText("fugaaaaaa");
   });
-  test.only("hogeのみ", async ({ page, next }) => {
+  test("hogeのみ", async ({ page, next }) => {
     next.onFetch((request) => {
       console.log("リクエスト: ", request.url);
 
@@ -65,7 +66,8 @@ describe("SSRモックの実験", () => {
           }
         );
       }
-      // return "abort";
+      // モックしないリクエストはパススルー（実際のAPIサーバーに転送）
+      return undefined;
     });
     await page.goto("http://localhost:3000/");
 
