@@ -24,6 +24,14 @@ app.post("/myitem", (req, res) => {
   res.json(mockData);
 });
 
+// hoge
+app.post("/hoge", (req, res) => {
+  console.log("POST /hoge リクエストを受信しました");
+
+  // 固定データをJSONで返却
+  res.json({ message: "hoge" });
+});
+
 // ヘルスチェック用のエンドポイント
 app.get("/health", (req, res) => {
   res.json({ status: "OK", message: "Mock server is running" });
