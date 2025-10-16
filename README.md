@@ -2,6 +2,8 @@
 
 このプロジェクトでは、Next.jsのexperimental testmode/playwrightの機能を使用してSSR時のAPI呼び出しをモックする実装を行っています。
 
+参照 https://github.com/vercel/next.js/blob/v15.0.4/packages/next/src/experimental/testmode/playwright/README.md
+
 ## 実装内容
 
 ### 1. Next.js設定の更新
