@@ -1,11 +1,11 @@
-import { test, expect, describe } from "next/experimental/testmode/playwright";
+import { test, expect } from "next/experimental/testmode/playwright";
 
-describe("SSRモックの実験", () => {
-  test.only("myitemとhogeの両方のAPIをモックして、画面に反映されることを確認", async ({
+test.describe("SSRモックの実験", () => {
+  test("myitemとhogeの両方のAPIをモックして、画面に反映されることを確認", async ({
     page,
     next,
   }) => {
-    next.onFetch((request) => {
+    next.onFetch(async (request) => {
       console.log("リクエスト: ", request.url);
       if (request.url === "http://localhost:3001/myitem") {
         return new Response(
@@ -33,8 +33,13 @@ describe("SSRモックの実験", () => {
           }
         );
       }
-      // モックしないリクエストはパススルー（実際のAPIサーバーに転送）
-      return undefined;
+
+      // その他のリクエストはパススルー
+      return await fetch(request.url, {
+        method: request.method,
+        headers: request.headers,
+        body: request.body ? await request.text() : undefined,
+      });
     });
     await page.goto("http://localhost:3000/");
 
@@ -46,12 +51,12 @@ describe("SSRモックの実験", () => {
 
     // 画面にモックデータが反映されていることを確認
     await expect(page.locator('[data-testid="api-result"]')).toContainText(
-      "テストユーザー"
+      "テストユーザーですね"
     );
     await expect(page.locator(".App")).toContainText("fugaaaaaa");
   });
   test("hogeのみ", async ({ page, next }) => {
-    next.onFetch((request) => {
+    next.onFetch(async (request) => {
       console.log("リクエスト: ", request.url);
 
       if (request.url === "http://localhost:3001/hoge") {
@@ -66,8 +71,13 @@ describe("SSRモックの実験", () => {
           }
         );
       }
-      // モックしないリクエストはパススルー（実際のAPIサーバーに転送）
-      return undefined;
+
+      // その他のリクエストはパススルー
+      return await fetch(request.url, {
+        method: request.method,
+        headers: request.headers,
+        body: request.body ? await request.text() : undefined,
+      });
     });
     await page.goto("http://localhost:3000/");
 

@@ -42,6 +42,7 @@ webServer: [
 ### 3. SSRモックテストの実装
 
 1. next.onFetchによりリクエストのurlごとにレスポンスを定義する
+   - mockしないリクエストはパススルーする必要があるので注意
 2. 次にページにアクセスしssrリクエストを発生させる
 
 ### 4. テストの実行
@@ -54,3 +55,13 @@ pnpm pw
 ## 注意事項
 
 - msw@1が必要との情報がwebにあるが、msw@1.3.5、msw@2.11.5 ともに動いた
+
+- mockしないリクエストは以下のようにパススルーしないといけない
+
+  ```
+  return await fetch(request.url, {
+    method: request.method,
+    headers: request.headers,
+    body: request.body ? await request.text() : undefined,
+  });
+  ```
